@@ -9,11 +9,15 @@
 import Foundation
 import Combine
 
-class WeatherService {
-    static let apiKey = "98d866fec5083d71d49d413b8887a8e5"
-    static let baseURL = "https://api.openweathermap.org/data/2.5/weather"
+protocol WeatherServiceProtocol {
+    func fetchWeather(latitude: Double, longitude: Double) -> AnyPublisher<WeatherResponse, Error>
+}
+
+class WeatherService: WeatherServiceProtocol {
+    let apiKey = "98d866fec5083d71d49d413b8887a8e5"
+    let baseURL = "https://api.openweathermap.org/data/2.5/weather"
     
-    static func fetchWeather(latitude: Double, longitude: Double) -> AnyPublisher<WeatherResponse, Error> {
+    func fetchWeather(latitude: Double, longitude: Double) -> AnyPublisher<WeatherResponse, Error> {
         let url = URL(string: "\(baseURL)?lat=\(latitude)&lon=\(longitude)&appid=\(apiKey)&units=Imperial")!
         
         

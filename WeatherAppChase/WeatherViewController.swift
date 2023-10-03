@@ -9,8 +9,9 @@ class WeatherViewController: UIViewController, UISearchBarDelegate {
     @IBOutlet weak var conditionLabel: UILabel!
     @IBOutlet weak var humidityLabel: UILabel!
     @IBOutlet weak var windSpeedLabel: UILabel!
+    @IBOutlet weak var feelsLikeLabel: UILabel!
     
-    private var viewModel = WeatherViewModel()
+    var viewModel = WeatherViewModel()
     private var cancellables = Set<AnyCancellable>()
     
     override func viewDidLoad() {
@@ -43,7 +44,7 @@ class WeatherViewController: UIViewController, UISearchBarDelegate {
        
     
     
-    private func updateUI(with weather: WeatherResponse?) {
+    func updateUI(with weather: WeatherResponse?) {
         guard let weather = weather else {
             // Handle no weather data
             return
@@ -52,8 +53,9 @@ class WeatherViewController: UIViewController, UISearchBarDelegate {
         cityNameLabel.text = "City: \(weather.name)"
         temperatureLabel.text = "Temperature: \(weather.main.temp) °F"
         conditionLabel.text = "Condition: \(weather.weather[0].description)"
-        humidityLabel.text = "Humidity: \(weather.weather[0].description)%"
+        humidityLabel.text = "Humidity: \(weather.main.humidity)%"
         windSpeedLabel.text = "Wind Speed: \(weather.wind.speed) m/s"
+        feelsLikeLabel.text = "Feels Like: \(weather.main.feels_like) °F"
         // Update other UI elements as needed
     }
 }

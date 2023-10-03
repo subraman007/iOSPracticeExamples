@@ -9,7 +9,7 @@ import Combine
 import CoreLocation
 import MapKit
 
-class WeatherViewModel: ObservableObject {
+class WeatherViewModel: ObservableObject, LocationManagerDelegate {
     @Published var searchQuery: String = ""
     @Published var city: String = ""
     @Published var weather: WeatherResponse?
@@ -19,6 +19,9 @@ class WeatherViewModel: ObservableObject {
     
     private lazy var geocoder = CLGeocoder()
     private lazy var searchCompleter = MKLocalSearchCompleter()
+    var locationManager = LocationManager()
+    var weatherService: WeatherServiceProtocol = WeatherService()
+    
     
     init() {
         // Set up bindings for autocomplete
@@ -38,6 +41,7 @@ class WeatherViewModel: ObservableObject {
             }
             .store(in: &cancellables)
         
+        
         // Load last selected location on app launch
         if let lastSelectedLocation = loadLastSelectedLocation() {
             geocodeAndFetchWeather(for: lastSelectedLocation)
@@ -48,20 +52,28 @@ class WeatherViewModel: ObservableObject {
                 self?.selectedLocation = results.first
             }
             .store(in: &cancellables)
+        
+        locationManager.delegate = self
     }
     
     func fetchWeather(latitude: Double, longitude: Double) {
-        WeatherService.fetchWeather(latitude: latitude, longitude: longitude)
+        weatherService.fetchWeather(latitude: latitude, longitude: longitude)
             .sink(receiveCompletion: { _ in }) { weatherResponse in
                 self.weather = weatherResponse
             }
             .store(in: &cancellables)
     }
     
-    func fetchWeatherForCurrentLocation() {
-        // Implement location-based weather fetching
-        // You can use Core Location for this purpose
+    func didUpdateLocation(_ location: CLLocation) {
+        // Handle the location update, e.g., fetch weather data
+        weatherService.fetchWeather(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
+            .sink(receiveCompletion: { _ in }) { [weak self] weather in
+                self?.weather = weather
+            }
+            .store(in: &cancellables)
     }
+    
+    
     
     func geocodeAndFetchWeather(for location: String) {
         geocoder.geocodeAddressString(location) { [weak self] placemarks, error in
@@ -79,7 +91,7 @@ class WeatherViewModel: ObservableObject {
     
     // MARK: - Last Selected Location Persistence
        
-       private let lastSelectedLocationKey = "LastSelectedLocation"
+       let lastSelectedLocationKey = "LastSelectedLocation"
        
        private func saveLastSelectedLocation(_ location: String) {
            UserDefaults.standard.set(location, forKey: lastSelectedLocationKey)
@@ -88,5 +100,12 @@ class WeatherViewModel: ObservableObject {
        private func loadLastSelectedLocation() -> String? {
            return UserDefaults.standard.string(forKey: lastSelectedLocationKey)
        }
+    
+    
 }
+
+
+
+
+
 
