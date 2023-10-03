@@ -8,15 +8,13 @@
 
 import XCTest
 import Combine
-@testable import WeatherAppChase  // Replace with your actual app name
+@testable import WeatherAppChase
 
 class MockWeatherViewModel: WeatherViewModel {
     var fetchWeatherCalled = false
 
     override func geocodeAndFetchWeather(for city: String) {
         fetchWeatherCalled = true
-        // Simulate the weather fetching process
-        // You can extend this mock to return predefined weather data for testing
     }
 }
 
@@ -74,7 +72,6 @@ class WeatherViewControllerTests: XCTestCase {
         XCTAssertEqual(viewController.feelsLikeLabel.text, "Feels Like: 273.15 °F") // Replace with the expected feels like value
     }
     
-    // Add more tests as needed for other functionalities
 
     override func tearDown() {
         super.tearDown()
